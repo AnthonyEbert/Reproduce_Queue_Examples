@@ -85,8 +85,11 @@ Summary_stats_theta1 <- theta1_50_datasets %>%
 
 plot(Summary_stats_theta1, main = git_hash)
 
+hash_path <- file.path("output", git_hash)
+
 data_path <- file.path("output", git_hash, "Heggland_Frigessi_2004")
 
+dir.create(hash_path, showWarnings = FALSE)
 dir.create(data_path, showWarnings = FALSE)
 
 save.session(file = paste(data_path, "/sesh.Rda", sep = ""))
