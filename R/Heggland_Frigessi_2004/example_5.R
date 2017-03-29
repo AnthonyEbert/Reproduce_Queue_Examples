@@ -12,7 +12,7 @@ print(git_hash)
 
 base_name <- system('basename `git rev-parse --show-toplevel`', intern = TRUE)
 
-git_tag <- paste(base_name, "/", git_hash)
+git_tag <- paste(base_name, "/", git_hash, sep = "")
 
 N = 101
 theta1 = 0.3
