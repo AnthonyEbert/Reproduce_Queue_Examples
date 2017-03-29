@@ -93,12 +93,12 @@ data_path <- file.path("output", git_hash, "Heggland_Frigessi_2004")
 dir.create(hash_path, showWarnings = FALSE)
 dir.create(data_path, showWarnings = FALSE)
 
-save.session(file = paste(git_hash, 
+save.session(file = paste("output/", git_hash, 
 "_sesh.Rda", sep = ""))
 
 ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_bar, group = realisation) + geom_line()
 
-ggsave(paste(git_hash, "_theta1_z_bar.pdf", sep = ""))
+ggsave(paste("output/", git_hash, "_theta1_z_bar.pdf", sep = ""))
 
 # ggsave(paste(data_path, "/theta1_z_bar.pdf", sep = ""))
 # 

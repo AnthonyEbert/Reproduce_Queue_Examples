@@ -37,3 +37,4 @@ vignettes/*.pdf
 *.Rda
 *.pdf
 *.csv
+/output/*
