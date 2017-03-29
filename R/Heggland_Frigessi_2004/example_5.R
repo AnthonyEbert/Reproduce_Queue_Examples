@@ -10,6 +10,10 @@ set.seed(1)
 git_hash <- system('git rev-parse HEAD', intern = TRUE)
 print(git_hash)
 
+base_name <- system('basename `git rev-parse --show-toplevel`', intern = TRUE)
+
+git_tag <- paste(base_name, "/", git_hash)
+
 N = 101
 theta1 = 0.3
 theta2 = 0.9
@@ -86,12 +90,12 @@ Summary_stats_theta1 <- theta1_50_datasets %>%
 
 plot(Summary_stats_theta1, main = git_hash)
 
-save.session(file = paste("output/", git_hash, 
+save.session(file = paste(git_tag,
 "_sesh.Rda", sep = ""))
 
 ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_bar, group = realisation) + geom_line()
 
-ggsave(paste("output/", git_hash, "_theta1_z_bar.pdf", sep = ""))
+ggsave(paste(git_tag, "_theta1_z_bar.pdf", sep = ""))
 
 # ggsave(paste(data_path, "/theta1_z_bar.pdf", sep = ""))
 # 
