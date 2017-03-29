@@ -4,6 +4,7 @@ library(queuecomputer)
 library(dplyr)
 library(session)
 library(ggplot2)
+library(reshape2)
 
 set.seed(1)
 
@@ -88,12 +89,10 @@ Summary_stats_theta1 <- theta1_50_datasets %>%
   summarise(z_bar = mean(interdepartures), z_min = min(interdepartures), z_med = median(interdepartures))
 
 
-plot(Summary_stats_theta1, main = git_hash)
+### Print z_bar ---------------
 
 save.session(file = paste(git_tag,
 "_sesh.Rda", sep = ""))
-
-
 
 pdf(file = paste(git_tag, "_theta1_z_bar.pdf"))
 
@@ -101,18 +100,18 @@ ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_bar, group = realisation)
 
 dev.off()
 
+### Print z_min
 
-# ggsave(paste(git_tag, "_theta1_z_bar.pdf", sep = ""))
+pdf(file = paste(git_tag, "_theta1_z_bar.pdf"))
 
-# ggsave(paste(data_path, "/theta1_z_bar.pdf", sep = ""))
-# 
-# ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_min, group = realisation) + geom_line()
-# 
-# ggsave(paste(data_path, "/theta1_z_min.pdf", sep = ""))
-# 
-# ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_med, group = realisation) + geom_line()
-# 
-# ggsave(paste(data_path, "/theta1_z_med.pdf", sep = ""))
+ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_bar, group = realisation) + geom_line()
+
+dev.off()
+
+print(git_hash)
+
+print(git_hash)
+
 
 
 
