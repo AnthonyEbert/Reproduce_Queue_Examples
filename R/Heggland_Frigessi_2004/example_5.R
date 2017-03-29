@@ -15,10 +15,13 @@ base_name <- system('basename `git rev-parse --show-toplevel`', intern = TRUE)
 
 git_tag <- paste(base_name, "/", git_hash, sep = "")
 
+Ntot = 1e5
 N = 101
-theta1 = 0.3
-theta2 = 0.9
-theta3 = 1.0
+
+theta <- c(0.3, 0.9, 1.0)
+theta1 = theta[1]
+theta2 = theta[2]
+theta3 = theta[3]
 
 service <- runif(N, theta1, theta2)
 
@@ -55,60 +58,125 @@ Summary_stats <- Original_50_datasets %>%
 
 each_num = 50
 
-theta_1_seq <- rep(seq(0.2, 0.4, by = 0.04), each = each_num)
-theta_2_seq <- rep(seq(0.8, 1.04, by = 0.04), each = each_num)
-theta_3_seq <- rep(seq(0.8, 1.3, by = 0.08), each = each_num)
+theta_1_sseq <- seq(0.2, 0.4, by = 0.04)
+theta_2_sseq <- seq(0.8, 1.04, by = 0.04)
+theta_3_sseq <- seq(0.8, 1.3, by = 0.08)
+
+theta_1_seq <- rep(theta_1_sseq, each = each_num)
+theta_2_seq <- rep(theta_2_sseq, each = each_num)
+theta_3_seq <- rep(theta_3_sseq, each = each_num)
 
 ## Changing theta1 ------------------------
 
 output <- lapply(1:length(theta_1_seq), function(i, ...) {
   
-  theta1_p <- theta_1_seq[i]
+  theta1 <- theta_1_seq[i]
+  theta2 <- theta[2]
+  theta3 <- theta[3]
   
-  arrivals <- cumsum(rexp(N, theta3))
-  service <- runif(N, theta1_p, theta2)
+  arrivals <- cumsum(rexp(Ntot, 1/theta3))
+  service <- runif(Ntot, theta1, theta2)
   
-  departures <- queue(arrivals, service, 1)
+  departures <- queue(arrivals, service, 1) %>% tail(N)
   
   interdepartures <- diff(departures)
   
-  return(data.frame(
+  return(data_frame(
     interdepartures = interdepartures, 
-    theta1_p = rep(theta1_p, N - 1))
+    parameter_value = rep(theta1, N - 1), 
+    parameter_name = "theta1")
   )
   
 })
 
 theta1_50_datasets <- bind_rows(output) %>% 
   mutate(
-    realisation = rep(rep(seq(1, 50), each = N - 1),6)
+    realisation = rep(rep(seq(1, 50), each = N - 1),length(theta_1_sseq))
   )
 
 Summary_stats_theta1 <- theta1_50_datasets %>%
-  group_by(theta1_p, realisation) %>%
+  group_by(parameter_name, parameter_value, realisation) %>%
   summarise(z_bar = mean(interdepartures), z_min = min(interdepartures), z_med = median(interdepartures))
 
+## Changing theta2 ------------------
 
-### Print z_bar ---------------
+output <- lapply(1:length(theta_2_seq), function(i, ...) {
+  
+  theta1 <- theta[1]
+  theta2 <- theta_2_seq[i]
+  theta3 <- theta[3]
+  
+  arrivals <- cumsum(rexp(Ntot, 1/theta3))
+  service <- runif(Ntot, theta1, theta2)
+  
+  departures <- queue(arrivals, service, 1) %>% tail(N)
+  
+  interdepartures <- diff(departures)
+  
+  return(data_frame(
+    interdepartures = interdepartures, 
+    parameter_value = rep(theta2, N - 1), 
+    parameter_name = "theta2")
+  )
+  
+})
 
-save.session(file = paste(git_tag,
-"_sesh.Rda", sep = ""))
+theta2_50_datasets <- bind_rows(output) %>% 
+  mutate(
+    realisation = rep(rep(seq(1, 50), each = N - 1),length(theta_2_sseq))
+  )
 
-pdf(file = paste(git_tag, "_theta1_z_bar.pdf"))
+Summary_stats_theta2 <- theta2_50_datasets %>%
+  group_by(parameter_name, parameter_value, realisation) %>%
+  summarise(z_bar = mean(interdepartures), z_min = min(interdepartures), z_med = median(interdepartures))
 
-ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_bar, group = realisation) + geom_line()
+## Changing theta3 ------------------
+
+output <- lapply(1:length(theta_3_seq), function(i, ...) {
+  
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  theta3 <- theta_3_seq[i]
+  
+  arrivals <- cumsum(rexp(Ntot, 1/theta3))
+  service <- runif(Ntot, theta1, theta2)
+  
+  departures <- queue(arrivals, service, 1) %>% tail(N)
+  
+  interdepartures <- diff(departures)
+  
+  return(data_frame(
+    interdepartures = interdepartures, 
+    parameter_value = rep(theta3, N - 1), 
+    parameter_name = "theta3")
+  )
+  
+})
+
+theta3_50_datasets <- bind_rows(output) %>% 
+  mutate(
+    realisation = rep(rep(seq(1, 50), each = N - 1),length(theta_3_sseq))
+  )
+
+Summary_stats_theta3 <- theta3_50_datasets %>%
+  group_by(parameter_name, parameter_value, realisation) %>%
+  summarise(z_bar = mean(interdepartures), z_min = min(interdepartures), z_med = median(interdepartures))
+
+Summary_stats_overall <- bind_rows(
+  Summary_stats_theta1, 
+  Summary_stats_theta2, 
+  Summary_stats_theta3
+  )
+
+melted_summary_overall <- melt(Summary_stats_overall, id.vars = c("parameter_name", "parameter_value", "realisation"))
+
+names(melted_summary_overall)[5] <- "stat_value"
+
+pdf(file = paste(git_tag, "Figure1_Heggland_Frigessi.pdf"))
+
+ggplot(melted_summary_overall) + aes(x = parameter_value, y = stat_value) + geom_point() + facet_grid(variable ~ parameter_name, scales = "free") + stat_smooth()
 
 dev.off()
-
-### Print z_min
-
-pdf(file = paste(git_tag, "_theta1_z_bar.pdf"))
-
-ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_bar, group = realisation) + geom_line()
-
-dev.off()
-
-print(git_hash)
 
 print(git_hash)
 
