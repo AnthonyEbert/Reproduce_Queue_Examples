@@ -19,7 +19,7 @@ if(compatability == FALSE){
 }
 
 Ntot = 1e5
-N = 101
+N = 501
 
 theta <- c(0.3, 0.9, 1.0)
 theta1 = theta[1]
