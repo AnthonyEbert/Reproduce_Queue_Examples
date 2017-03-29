@@ -8,12 +8,16 @@ library(reshape2)
 
 set.seed(1)
 
-git_hash <- system('git rev-parse HEAD', intern = TRUE)
-print(git_hash)
+compatability <- FALSE
 
-base_name <- system('basename `git rev-parse --show-toplevel`', intern = TRUE)
-
-git_tag <- paste(base_name, "/", git_hash, sep = "")
+if(compatability == FALSE){
+  git_hash <- system('git rev-parse HEAD', intern = TRUE)
+  print(git_hash)
+  base_name <- system('basename `git rev-parse --show-toplevel`', intern = TRUE)
+  git_tag <- paste(base_name, "/", git_hash, sep = "")
+} else {
+  git_tag <- ""
+}
 
 Ntot = 1e5
 N = 101
@@ -172,13 +176,13 @@ melted_summary_overall <- melt(Summary_stats_overall, id.vars = c("parameter_nam
 
 names(melted_summary_overall)[5] <- "stat_value"
 
-pdf(file = paste(git_tag, "Figure1_Heggland_Frigessi.pdf"))
+pdf(file = paste(git_tag, "Figure1_Heggland_Frigessi.pdf", sep = ""))
 
 ggplot(melted_summary_overall) + aes(x = parameter_value, y = stat_value) + geom_point() + facet_grid(variable ~ parameter_name, scales = "free") + stat_smooth()
 
 dev.off()
 
-print(git_hash)
+if(compatability == FALSE){print(git_hash)}
 
 
 
