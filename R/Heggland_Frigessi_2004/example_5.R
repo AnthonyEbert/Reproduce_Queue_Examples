@@ -2,7 +2,6 @@
 
 library(queuecomputer)
 library(dplyr)
-library(session)
 library(ggplot2)
 library(reshape2)
 
