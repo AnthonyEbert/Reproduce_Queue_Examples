@@ -93,9 +93,16 @@ plot(Summary_stats_theta1, main = git_hash)
 save.session(file = paste(git_tag,
 "_sesh.Rda", sep = ""))
 
+
+
+pdf(file = paste(git_tag, "_theta1_z_bar.pdf"))
+
 ggplot(Summary_stats_theta1) + aes(x = theta1_p, y = z_bar, group = realisation) + geom_line()
 
-ggsave(paste(git_tag, "_theta1_z_bar.pdf", sep = ""))
+dev.off()
+
+
+# ggsave(paste(git_tag, "_theta1_z_bar.pdf", sep = ""))
 
 # ggsave(paste(data_path, "/theta1_z_bar.pdf", sep = ""))
 # 
